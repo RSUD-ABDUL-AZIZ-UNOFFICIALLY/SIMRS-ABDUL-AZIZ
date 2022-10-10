@@ -1394,7 +1394,7 @@ private void BtnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 }                
             }
             Sequel.menyimpan("temporary_lab","'0','','Total Biaya Pemeriksaan Lab','"+ttl+"','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','',''","Transaksi Biaya Lab");
-            Valid.panggilUrl("billing/LaporanBiayaLab.php?norm="+TNoRM.getText()+"&pasien="+TPasien.getText().replaceAll(" ","_")+"&tanggal="+Tanggal.getSelectedItem()+"&jam="+CmbJam.getSelectedItem()+":"+CmbMenit.getSelectedItem()+":"+CmbDetik.getSelectedItem()+"&pjlab="+NmDokterPj.getText().replaceAll(" ","_")+"&petugas="+NmPtg.getText().replaceAll(" ","_")+"&kasir="+Sequel.cariIsi("select nama from pegawai where nik=?",akses.getkode()));
+            Valid.panggilUrl("billing/LaporanBiayaLab.php?norm="+TNoRM.getText()+"&pasien="+TPasien.getText().replaceAll(" ","_")+"&tanggal="+Tanggal.getSelectedItem()+"&jam="+CmbJam.getSelectedItem()+":"+CmbMenit.getSelectedItem()+":"+CmbDetik.getSelectedItem()+"&pjlab="+NmDokterPj.getText().replaceAll(" ","_")+"&petugas="+NmPtg.getText().replaceAll(" ","_")+"&kasir="+Sequel.cariIsi("select nama from pegawai where nik=?",akses.getkode())+"&usere="+koneksiDB.USERHYBRIDWEB()+"&passwordte="+koneksiDB.PASHYBRIDWEB());
         }
         this.setCursor(Cursor.getDefaultCursor());
     }//GEN-LAST:event_BtnNotaActionPerformed
@@ -1995,12 +1995,12 @@ private void BtnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                         rstampil=pstampil.executeQuery();
                         while(rstampil.next()){
                             System.out.println("ID Detail Laborat RS : "+rstampil.getString("id_template")+" "+rstampil.getString("Pemeriksaan"));
-                            pstindakan=koneksisysmex.prepareStatement("select ORDER_TESTID, DATA_TYP, RESULT_VALUE, RESULT_FT, UNIT, FLAG, REF_RANGE from RESDT where ONO=? and ORDER_TESTID=?");
+                            pstindakan=koneksisysmex.prepareStatement("select RESDT.ORDER_TESTID,RESDT.DATA_TYP,RESDT.RESULT_VALUE,RESDT.RESULT_FT,RESDT.UNIT,RESDT.FLAG,RESDT.REF_RANGE from RESDT where RESDT.ONO=? and RESDT.TEST_NM=?");
                             try {
                                 pstindakan.setString(1,order);
-                                pstindakan.setString(2,rstampil.getString("id_template"));
+                                pstindakan.setString(2,rstampil.getString("Pemeriksaan"));
                                 rstindakan=pstindakan.executeQuery();
-                                System.out.println("Menjalankan Query : select RESDT.ORDER_TESTID,RESDT.DATA_TYP,RESDT.RESULT_VALUE,RESDT.RESULT_FT,RESDT.UNIT,RESDT.FLAG,RESDT.REF_RANGE from RESDT where RESDT.ONO='"+order+"' and RESDT.ORDER_TESTID='"+rstampil.getString("id_template")+"'");
+                                System.out.println("Menjalankan Query : select RESDT.ORDER_TESTID,RESDT.DATA_TYP,RESDT.RESULT_VALUE,RESDT.RESULT_FT,RESDT.UNIT,RESDT.FLAG,RESDT.REF_RANGE from RESDT where RESDT.ONO='"+order+"' and RESDT.TEST_NM='"+rstampil.getString("Pemeriksaan")+"'");
                                 if(rstindakan.next()){
                                     System.out.println("ID Detail Laborat Sysmex Yang Ditemukan : "+rstindakan.getString("ORDER_TESTID"));
                                     if(rstindakan.getString("DATA_TYP").equals("FT")){

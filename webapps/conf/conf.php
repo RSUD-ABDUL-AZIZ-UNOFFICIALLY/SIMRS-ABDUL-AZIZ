@@ -56,6 +56,15 @@
         $save=str_replace("/*","",$save);
         $save=str_replace("*/","",$save);
         $save=str_replace("#","",$save);
+        $save=str_replace("text/html","",$save);
+        $save=str_replace("base64","",$save);
+        $save=str_replace("<script>","",$save);
+        $save=str_replace("</script>","",$save);
+        $save=str_replace("<noscript>","",$save);
+        $save=str_replace("</noscript>","",$save);
+        $save=str_replace("<img","",$save);
+        $save=str_replace("document","",$save);
+        $save=str_replace(" from ","",$save);
         return $save;
     }
     
@@ -67,6 +76,15 @@
         $save=str_replace("--","",$save);
         $save=str_replace("/*","",$save);
         $save=str_replace("*/","",$save);
+        $save=str_replace("text/html","",$save);
+        $save=str_replace("base64","",$save);
+        $save=str_replace("<script>","",$save);
+        $save=str_replace("</script>","",$save);
+        $save=str_replace("<noscript>","",$save);
+        $save=str_replace("</noscript>","",$save);
+        $save=str_replace("<img","",$save);
+        $save=str_replace("document","",$save);
+        $save=str_replace(" from ","",$save);
         return $save;
     }
     
@@ -184,7 +202,7 @@
     function bukaquery($sql){    
         $konektor=bukakoneksi();
         $result=mysqli_query($konektor, $sql)
-        or die (mysqli_error($konektor)."hmmmmmmm.....??????????");
+        or die (/*mysqli_error($konektor)."hmmmmmmm.....??????????"*/"Silahkan hubungi administrator..!");
         mysqli_close($konektor);
         return $result;
     }

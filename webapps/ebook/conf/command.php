@@ -12,7 +12,7 @@
     }
 
     function cekSessiAdmin() {
-        if (isset($_SESSION['ses_admin'])) {
+        if (isset($_SESSION['ses_admin_ebook'])) {
             return true;
         } else {
             return false;
@@ -21,7 +21,7 @@
 
 
     function cekUser() {
-        if (isset($_SESSION['ses_admin'])) {
+        if (isset($_SESSION['ses_admin_ebook'])) {
             return true;
         } else {
             return false;
@@ -30,7 +30,7 @@
 
     function adminAktif() {
         if (cekSessiAdmin()) {
-            return $_SESSION['ses_admin'];
+            return $_SESSION['ses_admin_ebook'];
         }
     }       
 
@@ -62,9 +62,9 @@
         formProtek();
         switch ($aksi) {
              case 'HomeAdmin'  	: include_once('pages/kontak.php'); break;
-             case 'List'             : include_once('pages/list.php'); break;
-             case 'List2'            : include_once('pages/list2.php'); break;
-             default			: include_once('pages/kontak.php');
+             case 'List'        : include_once('pages/list.php'); break;
+             case 'List2'       : include_once('pages/list2.php'); break;
+             default		: include_once('pages/kontak.php');
 
         }
     }

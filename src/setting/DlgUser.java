@@ -213,7 +213,8 @@ public class DlgUser extends javax.swing.JDialog {
                 "[L]Penilaian Awal Medis Ralan Neurologi","[D]Sirkulasi Obat, Alkes & BHP 6","[L]Penilaian Awal Medis Ralan Orthopedi","[L]Penilaian Awal Medis Ralan Bedah",
                 "[S]Integrasi Khanza Health Services","[L]SOAP Ralan Anggota TNI","[L]SOAP Ranap Anggota TNI","[I]Jumlah Pengunjung Ralan TNI","[I]Laporan Penyakit TNI",
                 "[L]Catatan Keperawatan Ranap","[L]Master Rencana Keperawatan Gigi","[L]Master Rencana Keperawatan Mata","[L]Master Rencana Keperawatan IGD",
-                "[L]Master Masalah Keperawatan Psikiatri","[L]Master Rencana Keperawatan Psikiatri","[L]Penilaian Awal Keperawatan Ralan Psikiatri","[L]Pemantauan PEWS Pasien Anak"
+                "[L]Master Masalah Keperawatan Psikiatri","[L]Master Rencana Keperawatan Psikiatri","[L]Penilaian Awal Keperawatan Ralan Psikiatri","[L]Pemantauan PEWS Pasien Anak",
+                "[O]Surat Pulang Atas Permintaan Sendiri","[L]Master Template Hasil Radiologi","[I]Laporan Bulanan IRJ","[L]Master Template Pemeriksaan","[A]Periksa Lab MB"
         };
         
         tabMode=new DefaultTableModel(null,row){
@@ -451,6 +452,8 @@ public class DlgUser extends javax.swing.JDialog {
                 java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class,
                 java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class,
                 java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class,
+                java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class,
+                java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class,
                 java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class
              };
              @Override
@@ -464,7 +467,7 @@ public class DlgUser extends javax.swing.JDialog {
         tbUser.setPreferredScrollableViewportSize(new Dimension(500,500));
         tbUser.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        for (i = 0; i < 870;i++) {
+        for (i = 0; i < 875;i++) {
             TableColumn column = tbUser.getColumnModel().getColumn(i);
             switch (i) {
                 case 0:
@@ -2528,6 +2531,21 @@ public class DlgUser extends javax.swing.JDialog {
                 case 869:
                     column.setPreferredWidth(175);
                     break;
+                case 870:
+                    column.setPreferredWidth(206);
+                    break;
+                case 871:
+                    column.setPreferredWidth(181);
+                    break;
+                case 872:
+                    column.setPreferredWidth(119);
+                    break;
+                case 873:
+                    column.setPreferredWidth(168);
+                    break;
+                case 874:
+                    column.setPreferredWidth(95);
+                    break;
                 default:
                     column.setPreferredWidth(135);
                     break;
@@ -3029,7 +3047,7 @@ public class DlgUser extends javax.swing.JDialog {
                     "'false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false',"+
                     "'false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false',"+
                     "'false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false',"+
-                    "'false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false'","User")==true){
+                    "'false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false','false'","User")==true){
                 tampil();
                 emptTeks();
             }            
@@ -3941,7 +3959,12 @@ public class DlgUser extends javax.swing.JDialog {
                     "master_masalah_keperawatan_psikiatri='"+tbUser.getValueAt(i,866).toString()+"',"+
                     "master_rencana_keperawatan_psikiatri='"+tbUser.getValueAt(i,867).toString()+"',"+
                     "penilaian_awal_keperawatan_psikiatri='"+tbUser.getValueAt(i,868).toString()+"',"+
-                    "pemantauan_pews_anak='"+tbUser.getValueAt(i,869).toString()+"'");
+                    "pemantauan_pews_anak='"+tbUser.getValueAt(i,869).toString()+"',"+
+                    "surat_pulang_atas_permintaan_sendiri='"+tbUser.getValueAt(i,870).toString()+"',"+
+                    "template_hasil_radiologi='"+tbUser.getValueAt(i,871).toString()+"',"+
+                    "laporan_bulanan_irj='"+tbUser.getValueAt(i,872).toString()+"',"+
+                    "template_pemeriksaan='"+tbUser.getValueAt(i,873).toString()+"',"+
+                    "pemeriksaan_lab_mb='"+tbUser.getValueAt(i,874).toString()+"'");
             }            
             tampil();
             emptTeks();
@@ -4893,7 +4916,12 @@ public class DlgUser extends javax.swing.JDialog {
                                         "master_masalah_keperawatan_psikiatri='"+tbUser.getValueAt(barisdicopy,866).toString()+"',"+
                                         "master_rencana_keperawatan_psikiatri='"+tbUser.getValueAt(barisdicopy,867).toString()+"',"+
                                         "penilaian_awal_keperawatan_psikiatri='"+tbUser.getValueAt(barisdicopy,868).toString()+"',"+
-                                        "pemantauan_pews_anak='"+tbUser.getValueAt(barisdicopy,869).toString()+"'");
+                                        "pemantauan_pews_anak='"+tbUser.getValueAt(barisdicopy,869).toString()+"',"+
+                                        "surat_pulang_atas_permintaan_sendiri='"+tbUser.getValueAt(barisdicopy,870).toString()+"',"+
+                                        "template_hasil_radiologi='"+tbUser.getValueAt(barisdicopy,871).toString()+"',"+
+                                        "laporan_bulanan_irj='"+tbUser.getValueAt(barisdicopy,872).toString()+"',"+
+                                        "template_pemeriksaan='"+tbUser.getValueAt(barisdicopy,873).toString()+"',"+
+                                        "pemeriksaan_lab_mb='"+tbUser.getValueAt(barisdicopy,874).toString()+"'");
                                 }    
                                 userdicopy="";
                                 copyhakakses="";
@@ -5266,7 +5294,8 @@ private void BtnPrintKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_
                 "user.penilaian_awal_medis_ralan_neurologi,user.sirkulasi_obat6,user.penilaian_awal_medis_ralan_orthopedi,user.penilaian_awal_medis_ralan_bedah,"+
                 "user.integrasi_khanza_health_services,user.soap_ralan_tni,user.soap_ranap_tni,user.jumlah_pengunjung_ralan_tni,user.laporan_penyakit_tni,"+
                 "user.catatan_keperawatan_ranap,user.master_rencana_keperawatan_gigi,user.master_rencana_keperawatan_mata,user.master_rencana_keperawatan_igd,"+
-                "user.master_masalah_keperawatan_psikiatri,user.master_rencana_keperawatan_psikiatri,user.penilaian_awal_keperawatan_psikiatri,user.pemantauan_pews_anak from user order by AES_DECRYPT(user.id_user,'nur')");
+                "user.master_masalah_keperawatan_psikiatri,user.master_rencana_keperawatan_psikiatri,user.penilaian_awal_keperawatan_psikiatri,user.pemantauan_pews_anak,"+
+                "user.surat_pulang_atas_permintaan_sendiri,user.template_hasil_radiologi,user.laporan_bulanan_irj,user.template_pemeriksaan,user.pemeriksaan_lab_mb from user order by AES_DECRYPT(user.id_user,'nur')");
             try {
                 rs=ps.executeQuery();
                 while(rs.next()){
@@ -6148,7 +6177,12 @@ private void BtnPrintKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_
                                rs.getBoolean("master_masalah_keperawatan_psikiatri"),
                                rs.getBoolean("master_rencana_keperawatan_psikiatri"),
                                rs.getBoolean("penilaian_awal_keperawatan_psikiatri"),
-                               rs.getBoolean("pemantauan_pews_anak")
+                               rs.getBoolean("pemantauan_pews_anak"),
+                               rs.getBoolean("surat_pulang_atas_permintaan_sendiri"),
+                               rs.getBoolean("template_hasil_radiologi"),
+                               rs.getBoolean("laporan_bulanan_irj"),
+                               rs.getBoolean("template_pemeriksaan"),
+                               rs.getBoolean("pemeriksaan_lab_mb")
                             });
                         }   
                     } catch (Exception e) {
@@ -7019,7 +7053,12 @@ private void BtnPrintKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_
                            rs.getBoolean("master_masalah_keperawatan_psikiatri"),
                            rs.getBoolean("master_rencana_keperawatan_psikiatri"),
                            rs.getBoolean("penilaian_awal_keperawatan_psikiatri"),
-                           rs.getBoolean("pemantauan_pews_anak")
+                           rs.getBoolean("pemantauan_pews_anak"),
+                           rs.getBoolean("surat_pulang_atas_permintaan_sendiri"),
+                           rs.getBoolean("template_hasil_radiologi"),
+                           rs.getBoolean("laporan_bulanan_irj"),
+                           rs.getBoolean("template_pemeriksaan"),
+                           rs.getBoolean("pemeriksaan_lab_mb")
                         });
                     }                                             
                  }
