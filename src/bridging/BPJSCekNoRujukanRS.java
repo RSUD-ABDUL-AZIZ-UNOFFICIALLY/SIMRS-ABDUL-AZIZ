@@ -76,7 +76,6 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
     private final DefaultTableModel tabMode;
     private validasi Valid=new validasi();
     private sekuel Sequel=new sekuel();
-    private int i=0;
     private Connection koneksi=koneksiDB.condb();
     private BPJSCekReferensiFaskes faskes=new BPJSCekReferensiFaskes(null,false);
     private BPJSCekReferensiPenyakit penyakit=new BPJSCekReferensiPenyakit(null,false);
@@ -109,19 +108,23 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
     private BPJSCekReferensiPropinsi propinsikll=new BPJSCekReferensiPropinsi(null,false);
     private BPJSCekReferensiKabupaten kabupatenkll=new BPJSCekReferensiKabupaten(null,false);
     private BPJSCekReferensiKecamatan kecamatankll=new BPJSCekReferensiKecamatan(null,false);
+    private YaskiReferensiPropinsi propinsiref=new YaskiReferensiPropinsi(null,false);
+    private YaskiReferensiKabupaten kabupatenref=new YaskiReferensiKabupaten(null,false);
+    private YaskiReferensiKecamatan kecamatanref=new YaskiReferensiKecamatan(null,false);
+    private YaskiReferensiKelurahan kelurahanref=new YaskiReferensiKelurahan(null,false);
     private int pilih=0,p_no_ktp=0,p_tmp_lahir=0,p_nm_ibu=0,p_alamat=0,
             p_pekerjaan=0,p_no_tlp=0,p_umur=0,p_namakeluarga=0,p_no_peserta=0,
             p_kelurahan=0,p_kecamatan=0,p_kabupaten=0,p_pekerjaanpj=0,
             p_alamatpj=0,p_kelurahanpj=0,p_kecamatanpj=0,p_kabupatenpj=0,jmlhari=0,
-            p_propinsi=0,p_propinsipj=0;
+            p_propinsi=0,p_propinsipj=0,kuota=0;
     private SimpleDateFormat dateformat = new SimpleDateFormat("yyyy/MM/dd");
-    private String kdkel="",kdkec="",kdkab="",kdprop="",BASENOREG="",URUTNOREG="",link="",klg="SAUDARA",statuspasien="",pengurutan="",tahun="",bulan="",posisitahun="",awalantahun="",awalanbulan="",
-            no_ktp="",tmp_lahir="",nm_ibu="",alamat="",pekerjaan="",no_tlp="",tglkkl="0000-00-00",
+    private String kdkel="",kdkec="",kdkab="",kdprop="",BASENOREG="",ADDANTRIANAPIMOBILEJKN="no",URUTNOREG="",link="",statuspasien="",pengurutan="",tahun="",bulan="",posisitahun="",awalantahun="",awalanbulan="",
+            no_ktp="",tmp_lahir="",nm_ibu="",alamat="",pekerjaan="",no_tlp="",tglkkl="0000-00-00",jammulai="",
             umur="",umurdaftar="",namakeluarga="",no_peserta="",kelurahan="",kecamatan="",sttsumur="",
-            kabupaten="",pekerjaanpj="",alamatpj="",kelurahanpj="",kecamatanpj="",
-            kabupatenpj="",hariawal="",requestJson,URL="",nosep="",user="",prb="",peserta="",
-            status="Baru",propinsi="",propinsipj="",utc="",DIAGNOSARUJUKANMASUKAPIBPJS="no",
-            tampilkantni=Sequel.cariIsi("select tampilkan_tni_polri from set_tni_polri");
+            kabupaten="",pekerjaanpj="",alamatpj="",kelurahanpj="",kecamatanpj="",datajam="",jamselesai="",
+            kabupatenpj="",hariawal="",requestJson,URL="",nosep="",user="",prb="",peserta="",hari="",jeniskunjungan="",
+            status="Baru",propinsi="",propinsipj="",utc="",DIAGNOSARUJUKANMASUKAPIBPJS="no",respon="200",
+            tampilkantni=Sequel.cariIsi("select set_tni_polri.tampilkan_tni_polri from set_tni_polri");
     private PreparedStatement ps,pskelengkapan,pscariumur,pssetalamat,pstni,pspolri;
     private ResultSet rs,rs2;
     private double biaya=0;
@@ -131,15 +134,15 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
     private Calendar cal = Calendar.getInstance();
     private int day = cal.get(Calendar.DAY_OF_WEEK);
     private Period p;
-    private long p2;
-    private boolean empt=false;
+    private boolean empt=false,statusantrean=true;
     private HttpHeaders headers;
     private HttpEntity requestEntity;
     private ObjectMapper mapper = new ObjectMapper();
     private JsonNode root;
     private JsonNode nameNode;
     private JsonNode response;
-    private String hari="";
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private Date parsedDate;
 
     /** Creates new form DlgKamar
      * @param parent
@@ -400,6 +403,186 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             public void windowActivated(WindowEvent e) {}
             @Override
             public void windowDeactivated(WindowEvent e) {}
+        });
+        
+        propinsiref.addWindowListener(new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {}
+            @Override
+            public void windowClosing(WindowEvent e) {}
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if(propinsiref.getTable().getSelectedRow()!= -1){   
+                    KdProp.setText(propinsiref.getTable().getValueAt(propinsiref.getTable().getSelectedRow(),1).toString());
+                    kdprop="";
+                    switch (pilih) {
+                        case 1:
+                            Propinsi.setText(propinsiref.getTable().getValueAt(propinsiref.getTable().getSelectedRow(),2).toString().toUpperCase());
+                            break;
+                        case 2:
+                            PropinsiPj.setText(propinsiref.getTable().getValueAt(propinsiref.getTable().getSelectedRow(),2).toString().toUpperCase());
+                            break;
+                        default:
+                            break;
+                    }
+                }                  
+            }
+            @Override
+            public void windowIconified(WindowEvent e) {}
+            @Override
+            public void windowDeiconified(WindowEvent e) {}
+            @Override
+            public void windowActivated(WindowEvent e) {}
+            @Override
+            public void windowDeactivated(WindowEvent e) {}
+        });
+        
+        propinsiref.getTable().addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode()==KeyEvent.VK_SPACE){
+                    propinsiref.dispose();
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        }); 
+        
+        kabupatenref.addWindowListener(new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {}
+            @Override
+            public void windowClosing(WindowEvent e) {}
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if(kabupatenref.getTable().getSelectedRow()!= -1){   
+                    KdKab.setText(kabupatenref.getTable().getValueAt(kabupatenref.getTable().getSelectedRow(),1).toString());
+                    kdkab="";
+                    switch (pilih) {
+                        case 1:
+                            Kabupaten.setText(kabupatenref.getTable().getValueAt(kabupatenref.getTable().getSelectedRow(),2).toString().toUpperCase());
+                            break;
+                        case 2:
+                            KabupatenPj.setText(kabupatenref.getTable().getValueAt(kabupatenref.getTable().getSelectedRow(),2).toString().toUpperCase());
+                            break;
+                        default:
+                            break;
+                    }
+                }                  
+            }
+            @Override
+            public void windowIconified(WindowEvent e) {}
+            @Override
+            public void windowDeiconified(WindowEvent e) {}
+            @Override
+            public void windowActivated(WindowEvent e) {}
+            @Override
+            public void windowDeactivated(WindowEvent e) {}
+        });
+        
+        kabupatenref.getTable().addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode()==KeyEvent.VK_SPACE){
+                    kabupatenref.dispose();
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        }); 
+        
+        kecamatanref.addWindowListener(new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {}
+            @Override
+            public void windowClosing(WindowEvent e) {}
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if(kecamatanref.getTable().getSelectedRow()!= -1){   
+                    KdKec.setText(kecamatanref.getTable().getValueAt(kecamatanref.getTable().getSelectedRow(),1).toString());
+                    kdkec="";
+                    switch (pilih) {
+                        case 1:
+                            Kecamatan.setText(kecamatanref.getTable().getValueAt(kecamatanref.getTable().getSelectedRow(),2).toString().toUpperCase());
+                            break;
+                        case 2:
+                            KecamatanPj.setText(kecamatanref.getTable().getValueAt(kecamatanref.getTable().getSelectedRow(),2).toString().toUpperCase());
+                            break;
+                        default:
+                            break;
+                    }
+                }                  
+            }
+            @Override
+            public void windowIconified(WindowEvent e) {}
+            @Override
+            public void windowDeiconified(WindowEvent e) {}
+            @Override
+            public void windowActivated(WindowEvent e) {}
+            @Override
+            public void windowDeactivated(WindowEvent e) {}
+        });
+        
+        kecamatanref.getTable().addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode()==KeyEvent.VK_SPACE){
+                    kecamatanref.dispose();
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
+        
+        kelurahanref.addWindowListener(new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {}
+            @Override
+            public void windowClosing(WindowEvent e) {}
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if(kelurahanref.getTable().getSelectedRow()!= -1){    
+                    KdKel.setText(kelurahanref.getTable().getValueAt(kelurahanref.getTable().getSelectedRow(),1).toString());
+                    kdkel="";
+                    switch (pilih) {
+                        case 1:
+                            Kelurahan.setText(kelurahanref.getTable().getValueAt(kelurahanref.getTable().getSelectedRow(),2).toString().toUpperCase());
+                            break;
+                        case 2:
+                            KelurahanPj.setText(kelurahanref.getTable().getValueAt(kelurahanref.getTable().getSelectedRow(),2).toString().toUpperCase());
+                            break;
+                        default:
+                            break;
+                    }
+                }                  
+            }
+            @Override
+            public void windowIconified(WindowEvent e) {}
+            @Override
+            public void windowDeiconified(WindowEvent e) {}
+            @Override
+            public void windowActivated(WindowEvent e) {}
+            @Override
+            public void windowDeactivated(WindowEvent e) {}
+        });
+        
+        kelurahanref.getTable().addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode()==KeyEvent.VK_SPACE){
+                    kelurahanref.dispose();
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {}
         });
         
         dokter.addWindowListener(new WindowListener() {
@@ -1261,8 +1444,8 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         NIP.setDocument(new batasInput((byte)30).getFilter(NIP));
         PenanggungJawab.setDocument(new batasInput((byte)100).getKata(PenanggungJawab));
         try{
-            KdPPK.setText(Sequel.cariIsi("select setting.kode_ppk from setting"));
-            NmPPK.setText(Sequel.cariIsi("select setting.nama_instansi from setting"));            
+            KdPPK.setText(akses.getkodeppkbpjs());
+            NmPPK.setText(akses.getnamars());           
             pssetalamat=koneksi.prepareStatement("select * from set_alamat_pasien");
             try {
                 rs=pssetalamat.executeQuery();
@@ -1360,12 +1543,6 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
                     ps.close();
                 }
             }
-            
-            try {
-                DIAGNOSARUJUKANMASUKAPIBPJS=koneksiDB.DIAGNOSARUJUKANMASUKAPIBPJS();
-            } catch (Exception e) {
-                DIAGNOSARUJUKANMASUKAPIBPJS="no";
-            }
         }catch(Exception e){
             System.out.println(e);
         }
@@ -1373,19 +1550,42 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         hariawal=Sequel.cariIsi("select set_jam_minimal.hariawal from set_jam_minimal");
         
         try {
+            DIAGNOSARUJUKANMASUKAPIBPJS=koneksiDB.DIAGNOSARUJUKANMASUKAPIBPJS();
+        } catch (Exception e) {
+            DIAGNOSARUJUKANMASUKAPIBPJS="no";
+        }
+
+        try {
             user=akses.getkode().replace(" ","").substring(0,9);
         } catch (Exception e) {
             user=akses.getkode();
         }
         
         try {
-            link=koneksiDB.URLAPIBPJS();
+            link=koneksiDB.URLAPIBPJS(); 
+        } catch (Exception e) {
+            System.out.println("Notif : "+e);
+        }
+        
+        try {          
             URUTNOREG=koneksiDB.URUTNOREG();
-            BASENOREG=koneksiDB.BASENOREG();
         } catch (Exception e) {
             URUTNOREG="";
+            System.out.println("Notif : "+e);
+        }
+        
+        try {
+            BASENOREG=koneksiDB.BASENOREG();
+        } catch (Exception e) {
             BASENOREG="";
-            System.out.println("E : "+e);
+            System.out.println("Notif : "+e);
+        }
+        
+        try {
+            ADDANTRIANAPIMOBILEJKN=koneksiDB.ADDANTRIANAPIMOBILEJKN();
+        } catch (Exception e) {
+            ADDANTRIANAPIMOBILEJKN="";
+            System.out.println("Notif : "+e);
         }
         
         if(tampilkantni.equals("Yes")){
@@ -1487,6 +1687,10 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         kdjabatanpolri = new widget.TextBox();
         kdperusahaan = new widget.TextBox();
         kdcacat = new widget.TextBox();
+        KdKec = new widget.TextBox();
+        KdProp = new widget.TextBox();
+        KdKel = new widget.TextBox();
+        KdKab = new widget.TextBox();
         internalFrame1 = new widget.InternalFrame();
         Scroll = new widget.ScrollPane();
         tbKamar = new widget.Table();
@@ -1525,12 +1729,6 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         jLabel22 = new widget.Label();
         jLabel24 = new widget.Label();
         CMbPnd = new widget.ComboBox();
-        Saudara = new widget.TextBox();
-        R5 = new widget.RadioButton();
-        R4 = new widget.RadioButton();
-        R3 = new widget.RadioButton();
-        R2 = new widget.RadioButton();
-        R1 = new widget.RadioButton();
         jLabel25 = new widget.Label();
         Kdpnj = new widget.TextBox();
         nmpnj = new widget.TextBox();
@@ -1543,10 +1741,6 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         BtnKabupaten = new widget.Button();
         jLabel14 = new widget.Label();
         NmIbu = new widget.TextBox();
-        jLabel26 = new widget.Label();
-        jLabel27 = new widget.Label();
-        PekerjaanPj = new widget.TextBox();
-        jLabel28 = new widget.Label();
         jLabel29 = new widget.Label();
         AlamatPj = new widget.TextBox();
         KecamatanPj = new widget.TextBox();
@@ -1556,7 +1750,6 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         BtnKelurahanPj = new widget.Button();
         KelurahanPj = new widget.TextBox();
         ChkRM = new widget.CekBox();
-        R6 = new widget.RadioButton();
         jLabel40 = new widget.Label();
         nmsukubangsa = new widget.TextBox();
         BtnSuku = new widget.Button();
@@ -1603,6 +1796,12 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         BtnJabatanPolri = new widget.Button();
         nmjabatanpolri = new widget.TextBox();
         LabelJabatanPolri = new widget.Label();
+        jLabel26 = new widget.Label();
+        CmbKeluarga = new widget.ComboBox();
+        jLabel28 = new widget.Label();
+        PekerjaanPj = new widget.TextBox();
+        jLabel27 = new widget.Label();
+        Saudara = new widget.TextBox();
         FormKelengkapanSEP = new widget.PanelBiasa();
         jLabel4 = new widget.Label();
         TNoRw = new widget.TextBox();
@@ -1712,7 +1911,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
 
         DTPLahir.setEditable(false);
         DTPLahir.setForeground(new java.awt.Color(50, 70, 50));
-        DTPLahir.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "24-11-2021" }));
+        DTPLahir.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "17-04-2023" }));
         DTPLahir.setDisplayFormat("dd-MM-yyyy");
         DTPLahir.setName("DTPLahir"); // NOI18N
         DTPLahir.setOpaque(false);
@@ -1924,6 +2123,22 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
                 kdcacatKeyPressed(evt);
             }
         });
+
+        KdKec.setEditable(false);
+        KdKec.setHighlighter(null);
+        KdKec.setName("KdKec"); // NOI18N
+
+        KdProp.setEditable(false);
+        KdProp.setHighlighter(null);
+        KdProp.setName("KdProp"); // NOI18N
+
+        KdKel.setEditable(false);
+        KdKel.setHighlighter(null);
+        KdKel.setName("KdKel"); // NOI18N
+
+        KdKab.setEditable(false);
+        KdKab.setHighlighter(null);
+        KdKab.setName("KdKab"); // NOI18N
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setIconImage(null);
@@ -2240,7 +2455,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         FormKelengkapanPasien.add(TNo);
         TNo.setBounds(107, 25, 160, 23);
 
-        DTPDaftar.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "24-11-2021" }));
+        DTPDaftar.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "17-04-2023" }));
         DTPDaftar.setDisplayFormat("dd-MM-yyyy");
         DTPDaftar.setName("DTPDaftar"); // NOI18N
         DTPDaftar.setOpaque(false);
@@ -2271,47 +2486,6 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         });
         FormKelengkapanPasien.add(CMbPnd);
         CMbPnd.setBounds(345, 115, 90, 23);
-
-        Saudara.setName("Saudara"); // NOI18N
-        Saudara.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                SaudaraKeyPressed(evt);
-            }
-        });
-        FormKelengkapanPasien.add(Saudara);
-        Saudara.setBounds(534, 145, 142, 23);
-
-        R5.setSelected(true);
-        R5.setText("Saudara");
-        R5.setIconTextGap(0);
-        R5.setName("R5"); // NOI18N
-        FormKelengkapanPasien.add(R5);
-        R5.setBounds(750, 115, 60, 23);
-
-        R4.setText("Suami");
-        R4.setIconTextGap(0);
-        R4.setName("R4"); // NOI18N
-        FormKelengkapanPasien.add(R4);
-        R4.setBounds(690, 115, 50, 23);
-
-        R3.setText("Istri");
-        R3.setIconTextGap(0);
-        R3.setName("R3"); // NOI18N
-        FormKelengkapanPasien.add(R3);
-        R3.setBounds(640, 115, 44, 23);
-
-        R2.setText("Ibu");
-        R2.setIconTextGap(0);
-        R2.setName("R2"); // NOI18N
-        FormKelengkapanPasien.add(R2);
-        R2.setBounds(592, 115, 40, 23);
-
-        R1.setText("Ayah");
-        R1.setIconTextGap(0);
-        R1.setName("R1"); // NOI18N
-        R1.setPreferredSize(new java.awt.Dimension(40, 20));
-        FormKelengkapanPasien.add(R1);
-        R1.setBounds(534, 115, 46, 23);
 
         jLabel25.setText("Askes/Asuransi :");
         jLabel25.setName("jLabel25"); // NOI18N
@@ -2460,30 +2634,6 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         FormKelengkapanPasien.add(NmIbu);
         NmIbu.setBounds(107, 175, 328, 23);
 
-        jLabel26.setText("Png. Jawab :");
-        jLabel26.setName("jLabel26"); // NOI18N
-        FormKelengkapanPasien.add(jLabel26);
-        jLabel26.setBounds(430, 115, 100, 23);
-
-        jLabel27.setText("Png. Jawab :");
-        jLabel27.setName("jLabel27"); // NOI18N
-        FormKelengkapanPasien.add(jLabel27);
-        jLabel27.setBounds(430, 145, 100, 23);
-
-        PekerjaanPj.setName("PekerjaanPj"); // NOI18N
-        PekerjaanPj.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                PekerjaanPjKeyPressed(evt);
-            }
-        });
-        FormKelengkapanPasien.add(PekerjaanPj);
-        PekerjaanPj.setBounds(767, 145, 142, 23);
-
-        jLabel28.setText("Pekerjaan P.J. :");
-        jLabel28.setName("jLabel28"); // NOI18N
-        FormKelengkapanPasien.add(jLabel28);
-        jLabel28.setBounds(680, 145, 83, 23);
-
         jLabel29.setText("Alamat P.J. :");
         jLabel29.setName("jLabel29"); // NOI18N
         FormKelengkapanPasien.add(jLabel29);
@@ -2622,12 +2772,6 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         });
         FormKelengkapanPasien.add(ChkRM);
         ChkRM.setBounds(269, 25, 23, 23);
-
-        R6.setText("Anak");
-        R6.setIconTextGap(0);
-        R6.setName("R6"); // NOI18N
-        FormKelengkapanPasien.add(R6);
-        R6.setBounds(825, 115, 60, 23);
 
         jLabel40.setText("Suku/Bangsa :");
         jLabel40.setName("jLabel40"); // NOI18N
@@ -3041,6 +3185,50 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         FormKelengkapanPasien.add(LabelJabatanPolri);
         LabelJabatanPolri.setBounds(441, 445, 135, 23);
 
+        jLabel26.setText("Png. Jawab :");
+        jLabel26.setName("jLabel26"); // NOI18N
+        FormKelengkapanPasien.add(jLabel26);
+        jLabel26.setBounds(430, 115, 100, 23);
+
+        CmbKeluarga.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "AYAH", "IBU", "ISTRI", "SUAMI", "SAUDARA", "ANAK", "DIRI SENDIRI", "LAIN-LAIN" }));
+        CmbKeluarga.setSelectedIndex(6);
+        CmbKeluarga.setName("CmbKeluarga"); // NOI18N
+        CmbKeluarga.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                CmbKeluargaKeyPressed(evt);
+            }
+        });
+        FormKelengkapanPasien.add(CmbKeluarga);
+        CmbKeluarga.setBounds(534, 115, 140, 23);
+
+        jLabel28.setText("Pekerjaan P.J. :");
+        jLabel28.setName("jLabel28"); // NOI18N
+        FormKelengkapanPasien.add(jLabel28);
+        jLabel28.setBounds(680, 115, 83, 23);
+
+        PekerjaanPj.setName("PekerjaanPj"); // NOI18N
+        PekerjaanPj.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                PekerjaanPjKeyPressed(evt);
+            }
+        });
+        FormKelengkapanPasien.add(PekerjaanPj);
+        PekerjaanPj.setBounds(767, 115, 142, 23);
+
+        jLabel27.setText("Nama P.J. :");
+        jLabel27.setName("jLabel27"); // NOI18N
+        FormKelengkapanPasien.add(jLabel27);
+        jLabel27.setBounds(430, 145, 100, 23);
+
+        Saudara.setName("Saudara"); // NOI18N
+        Saudara.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                SaudaraKeyPressed(evt);
+            }
+        });
+        FormKelengkapanPasien.add(Saudara);
+        Saudara.setBounds(534, 145, 375, 23);
+
         FormInput.add(FormKelengkapanPasien);
 
         FormKelengkapanSEP.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(241, 246, 236)), "::[ Kelengkapan Data SEP, Registrasi & Kamar Inap ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(50, 50, 50))); // NOI18N
@@ -3299,7 +3487,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         FormKelengkapanSEP.add(jLabel31);
         jLabel31.setBounds(239, 355, 100, 23);
 
-        TanggalSEP.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "24-11-2021 16:02:03" }));
+        TanggalSEP.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "17-04-2023 14:55:28" }));
         TanggalSEP.setDisplayFormat("dd-MM-yyyy HH:mm:ss");
         TanggalSEP.setName("TanggalSEP"); // NOI18N
         TanggalSEP.setOpaque(false);
@@ -3318,7 +3506,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         FormKelengkapanSEP.add(jLabel30);
         jLabel30.setBounds(3, 355, 100, 23);
 
-        TanggalRujuk.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "24-11-2021" }));
+        TanggalRujuk.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "17-04-2023" }));
         TanggalRujuk.setDisplayFormat("dd-MM-yyyy");
         TanggalRujuk.setName("TanggalRujuk"); // NOI18N
         TanggalRujuk.setOpaque(false);
@@ -3433,7 +3621,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         FormKelengkapanSEP.add(jLabel52);
         jLabel52.setBounds(343, 235, 40, 23);
 
-        NaikKelas.setModel(new javax.swing.DefaultComboBoxModel(new String[] { " ", "1. VVIP", "2. VIP", "3. Kelas I", "4. Kelas II", "5. Kelas III", "6. ICCU", "7. ICU" }));
+        NaikKelas.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "1. VVIP", "2. VIP", "3. Kelas I", "4. Kelas II", "5. Kelas III", "6. ICCU", "7. ICU", "8. Diatas Kelas 1" }));
         NaikKelas.setEnabled(false);
         NaikKelas.setName("NaikKelas"); // NOI18N
         NaikKelas.addItemListener(new java.awt.event.ItemListener() {
@@ -3787,7 +3975,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             }
         });
         FormKelengkapanSEP.add(LakaLantas);
-        LakaLantas.setBounds(589, 25, 131, 23);
+        LakaLantas.setBounds(589, 25, 107, 23);
 
         jLabel47.setText("Tgl.Kecelakaan :");
         jLabel47.setName("jLabel47"); // NOI18N
@@ -3796,7 +3984,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         jLabel47.setBounds(724, 25, 90, 23);
 
         TanggalKKL.setForeground(new java.awt.Color(50, 70, 50));
-        TanggalKKL.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "24-11-2021" }));
+        TanggalKKL.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "17-04-2023" }));
         TanggalKKL.setDisplayFormat("dd-MM-yyyy");
         TanggalKKL.setEnabled(false);
         TanggalKKL.setName("TanggalKKL"); // NOI18N
@@ -3948,7 +4136,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         lahir = DTPLahir.getDate();    
         birthday = lahir.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         p = Period.between(birthday,today);
-        p2 =ChronoUnit.DAYS.between(birthday,today);
+        ChronoUnit.DAYS.between(birthday,today);
         TUmur.setText(String.valueOf(p.getYears())+" Th "+String.valueOf(p.getMonths())+" Bl "+String.valueOf(p.getDays())+" Hr");
     }//GEN-LAST:event_DTPLahirItemStateChanged
 
@@ -4005,7 +4193,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             BtnSatuanTNI.setEnabled(false);
             BtnJabatanTNI.setEnabled(false);
             BtnPangkatTNI.setEnabled(false);
-            R5.setSelected(true);
+            CmbKeluarga.setSelectedItem("SAUDARA");
             LakaLantas.setSelectedIndex(0);
             Katarak.setSelectedIndex(0);        
             Suplesi.setSelectedIndex(0);
@@ -4123,20 +4311,9 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         Valid.pindah(evt,Pekerjaan,TTlp);
     }//GEN-LAST:event_CMbPndKeyPressed
 
-    private void SaudaraKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_SaudaraKeyPressed
-        if(evt.getKeyCode()==KeyEvent.VK_ENTER){
-            PekerjaanPj.requestFocus();
-        }else if(evt.getKeyCode()==KeyEvent.VK_PAGE_UP){
-            if(Propinsi.getText().equals("PROPINSI")){
-                Propinsi.setText("");
-            }
-            Propinsi.requestFocus();
-        }
-    }//GEN-LAST:event_SaudaraKeyPressed
-
     private void KdpnjKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_KdpnjKeyPressed
         if(evt.getKeyCode()==KeyEvent.VK_PAGE_DOWN){
-            Sequel.cariIsi("select png_jawab from penjab where kd_pj=?",nmpnj,Kdpnj.getText());
+            Sequel.cariIsi("select penjab.png_jawab from penjab where penjab.kd_pj=?",nmpnj,Kdpnj.getText());
         }else if(evt.getKeyCode()==KeyEvent.VK_UP){
             BtnPenjabActionPerformed(null);
         }else if(evt.getKeyCode()==KeyEvent.VK_ENTER){
@@ -4184,7 +4361,16 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             }
             Alamat.requestFocus();
         }else if(evt.getKeyCode()==KeyEvent.VK_UP){
-            BtnKelurahanActionPerformed(null);
+            if(KdKec.getText().trim().equals("")||Kecamatan.getText().trim().equals("")||Kecamatan.getText().trim().equals("KECAMATAN")){
+                JOptionPane.showMessageDialog(null,"Silahkan pilih kecamatan dulu..!!");
+                BtnKelurahan.requestFocus();
+            }else{
+                pilih=1;
+                kelurahanref.setPropinsi(KdKec.getText(),Kecamatan.getText());
+                kelurahanref.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
+                kelurahanref.setLocationRelativeTo(internalFrame1);
+                kelurahanref.setVisible(true);
+            }
         }
     }//GEN-LAST:event_KelurahanKeyPressed
 
@@ -4218,7 +4404,16 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             }
             Kelurahan.requestFocus();
         }else if(evt.getKeyCode()==KeyEvent.VK_UP){
-            BtnKecamatanActionPerformed(null);
+            if(KdKab.getText().trim().equals("")||Kabupaten.getText().trim().equals("")||Kabupaten.getText().trim().equals("KABUPATEN")){
+                JOptionPane.showMessageDialog(null,"Silahkan pilih kabupaten dulu..!!");
+                BtnKabupaten.requestFocus();
+            }else{
+                pilih=1;
+                kecamatanref.setPropinsi(KdKab.getText(),Kabupaten.getText());
+                kecamatanref.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
+                kecamatanref.setLocationRelativeTo(internalFrame1);
+                kecamatanref.setVisible(true);
+            }
         }
     }//GEN-LAST:event_KecamatanKeyPressed
 
@@ -4252,7 +4447,16 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             }
             Kecamatan.requestFocus();
         }else if(evt.getKeyCode()==KeyEvent.VK_UP){
-            BtnKabupatenActionPerformed(null);
+            if(KdProp.getText().trim().equals("")||Propinsi.getText().trim().equals("")||Propinsi.getText().trim().equals("PROPINSI")){
+                JOptionPane.showMessageDialog(null,"Silahkan pilih propinsi dulu..!!");
+                BtnPropinsi.requestFocus();
+            }else{
+                pilih=1;
+                kabupatenref.setPropinsi(KdProp.getText(),Propinsi.getText());
+                kabupatenref.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
+                kabupatenref.setLocationRelativeTo(internalFrame1);
+                kabupatenref.setVisible(true);
+            }
         }
     }//GEN-LAST:event_KabupatenKeyPressed
 
@@ -4280,17 +4484,6 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
     private void NmIbuKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_NmIbuKeyPressed
         Valid.pindah(evt,DTPDaftar,Kdpnj);
     }//GEN-LAST:event_NmIbuKeyPressed
-
-    private void PekerjaanPjKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_PekerjaanPjKeyPressed
-        if(evt.getKeyCode()==KeyEvent.VK_ENTER){
-            if(AlamatPj.getText().equals("ALAMAT")){
-                AlamatPj.setText("");
-            }
-            AlamatPj.requestFocus();
-        }else if(evt.getKeyCode()==KeyEvent.VK_PAGE_UP){
-            Saudara.requestFocus();
-        }
-    }//GEN-LAST:event_PekerjaanPjKeyPressed
 
     private void AlamatPjMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AlamatPjMouseMoved
         if(AlamatPj.getText().equals("ALAMAT")){
@@ -4351,7 +4544,16 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             }
             KelurahanPj.requestFocus();
         }else if(evt.getKeyCode()==KeyEvent.VK_UP){
-            BtnKecamatanPjActionPerformed(null);
+            if(KdKab.getText().trim().equals("")||KabupatenPj.getText().trim().equals("")||KabupatenPj.getText().trim().equals("KABUPATEN")){
+                JOptionPane.showMessageDialog(null,"Silahkan pilih kabupaten dulu..!!");
+                BtnKabupaten.requestFocus();
+            }else{
+                pilih=2;
+                kecamatanref.setPropinsi(KdKab.getText(),KabupatenPj.getText());
+                kecamatanref.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
+                kecamatanref.setLocationRelativeTo(internalFrame1);
+                kecamatanref.setVisible(true);
+            }
         }
     }//GEN-LAST:event_KecamatanPjKeyPressed
 
@@ -4392,7 +4594,16 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             }
             KecamatanPj.requestFocus();
         }else if(evt.getKeyCode()==KeyEvent.VK_UP){
-            BtnKabupatenPjActionPerformed(null);
+            if(KdProp.getText().trim().equals("")||PropinsiPj.getText().trim().equals("")||PropinsiPj.getText().trim().equals("PROPINSI")){
+                JOptionPane.showMessageDialog(null,"Silahkan pilih propinsi dulu..!!");
+                BtnPropinsi.requestFocus();
+            }else{
+                pilih=2;
+                kabupatenref.setPropinsi(KdProp.getText(),PropinsiPj.getText());
+                kabupatenref.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
+                kabupatenref.setLocationRelativeTo(internalFrame1);
+                kabupatenref.setVisible(true);
+            } 
         }
     }//GEN-LAST:event_KabupatenPjKeyPressed
 
@@ -4440,7 +4651,16 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             }
             AlamatPj.requestFocus();
         }else if(evt.getKeyCode()==KeyEvent.VK_UP){
-            BtnKelurahanPjActionPerformed(null);
+            if(KdKec.getText().trim().equals("")||KecamatanPj.getText().trim().equals("")||KecamatanPj.getText().trim().equals("KECAMATAN")){
+                JOptionPane.showMessageDialog(null,"Silahkan pilih kecamatan dulu..!!");
+                BtnKelurahan.requestFocus();
+            }else{
+                pilih=2;
+                kelurahanref.setPropinsi(KdKec.getText(),KecamatanPj.getText());
+                kelurahanref.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
+                kelurahanref.setLocationRelativeTo(internalFrame1);
+                kelurahanref.setVisible(true);
+            }
         }
     }//GEN-LAST:event_KelurahanPjKeyPressed
 
@@ -4570,7 +4790,10 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             }
             Kabupaten.requestFocus();
         }else if(evt.getKeyCode()==KeyEvent.VK_UP){
-            BtnPropinsiActionPerformed(null);
+            pilih=1;
+            propinsiref.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
+            propinsiref.setLocationRelativeTo(internalFrame1);
+            propinsiref.setVisible(true);
         }
     }//GEN-LAST:event_PropinsiKeyPressed
 
@@ -4609,7 +4832,10 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             }
             KabupatenPj.requestFocus();
         }else if(evt.getKeyCode()==KeyEvent.VK_UP){
-            btnPropinsiPjActionPerformed(null);
+            pilih=2;
+            propinsiref.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
+            propinsiref.setLocationRelativeTo(internalFrame1);
+            propinsiref.setVisible(true);
         }
     }//GEN-LAST:event_PropinsiPjKeyPressed
 
@@ -4907,17 +5133,14 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             Valid.textKosong(Catatan, "Catatan");
         }else{
             if((JenisPelayanan.getSelectedIndex()==1)&&(NmPoli.getText().toLowerCase().contains("darurat"))){
-                    if(Sequel.cariInteger("select count(bridging_sep.no_kartu) from bridging_sep where bridging_sep.no_kartu='"+no_peserta+"' and bridging_sep.jnspelayanan='"+JenisPelayanan.getSelectedItem().toString().substring(0,1)+"' and bridging_sep.tglsep like '%"+Valid.SetTgl(TanggalSEP.getSelectedItem()+"").substring(0,10)+"%' and bridging_sep.nmpolitujuan like '%darurat%'")>=3){
+                if(Sequel.cariInteger("select count(bridging_sep.no_kartu) from bridging_sep where bridging_sep.no_kartu='"+no_peserta+"' and bridging_sep.jnspelayanan='"+JenisPelayanan.getSelectedItem().toString().substring(0,1)+"' and bridging_sep.tglsep like '%"+Valid.SetTgl(TanggalSEP.getSelectedItem()+"").substring(0,10)+"%' and bridging_sep.nmpolitujuan like '%darurat%'")>=3){
                     JOptionPane.showMessageDialog(null,"Maaf, sebelumnya sudah dilakukan 3x pembuatan SEP di jenis pelayanan yang sama..!!");
                     NoRujukan.requestFocus();
                 }else{
                     insertPasien();
                 }
             }else if((JenisPelayanan.getSelectedIndex()==1)&&(!NmPoli.getText().toLowerCase().contains("darurat"))){
-                if(Sequel.cariInteger("select count(no_kartu) from bridging_sep where "+
-                    "no_kartu='"+no_peserta+"' and jnspelayanan='"+JenisPelayanan.getSelectedItem().toString().substring(0,1)+"' "+
-                    "and tglsep like '%"+Valid.SetTgl(TanggalSEP.getSelectedItem()+"").substring(0,10)+"%' and "+
-                    "nmpolitujuan not like '%darurat%'")>=1){
+                if(Sequel.cariInteger("select count(bridging_sep.no_kartu) from bridging_sep where bridging_sep.no_kartu='"+no_peserta+"' and bridging_sep.jnspelayanan='"+JenisPelayanan.getSelectedItem().toString().substring(0,1)+"' and bridging_sep.tglsep like '%"+Valid.SetTgl(TanggalSEP.getSelectedItem()+"").substring(0,10)+"%' and bridging_sep.nmpolitujuan not like '%darurat%'")>=1){
                     JOptionPane.showMessageDialog(null,"Maaf, sebelumnya sudah dilakukan pembuatan SEP di jenis pelayanan rawat jalan..!!");
                     NoRujukan.requestFocus();
                 }else{
@@ -5039,7 +5262,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
     private void kddokterKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_kddokterKeyPressed
         if(evt.getKeyCode()==KeyEvent.VK_PAGE_DOWN){
             isNumber();
-            Sequel.cariIsi("select dokter.nm_dokter from dokter where dokter.kd_dokter=?",TDokter,kddokter.getText());
+            TDokter.setText(dokter.tampil3(kddokter.getText()));
         }else if(evt.getKeyCode()==KeyEvent.VK_UP){
             BtnDokterActionPerformed(null);
         }else{
@@ -5425,6 +5648,29 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_AsesmenPoliKeyPressed
 
+    private void CmbKeluargaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_CmbKeluargaKeyPressed
+        Valid.pindah(evt,NmIbu,PekerjaanPj);
+    }//GEN-LAST:event_CmbKeluargaKeyPressed
+
+    private void PekerjaanPjKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_PekerjaanPjKeyPressed
+        if(evt.getKeyCode()==KeyEvent.VK_ENTER){
+            Saudara.requestFocus();
+        }else if(evt.getKeyCode()==KeyEvent.VK_PAGE_UP){
+            CmbKeluarga.requestFocus();
+        }
+    }//GEN-LAST:event_PekerjaanPjKeyPressed
+
+    private void SaudaraKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_SaudaraKeyPressed
+        if(evt.getKeyCode()==KeyEvent.VK_ENTER){
+            if(AlamatPj.getText().equals("ALAMAT")){
+                AlamatPj.setText("");
+            }
+            AlamatPj.requestFocus();
+        }else if(evt.getKeyCode()==KeyEvent.VK_PAGE_UP){
+            PekerjaanPj.requestFocus();
+        }
+    }//GEN-LAST:event_SaudaraKeyPressed
+
     /**
     * @param args the command line arguments
     */
@@ -5479,6 +5725,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
     private widget.CekBox ChkCari;
     private widget.CekBox ChkRM;
     private widget.ComboBox CmbJk;
+    private widget.ComboBox CmbKeluarga;
     private widget.ComboBox CmbStts;
     private widget.Tanggal DTPDaftar;
     private widget.Tanggal DTPLahir;
@@ -5494,12 +5741,16 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
     private widget.ComboBox Katarak;
     private widget.TextBox KdDPJP;
     private widget.TextBox KdDPJPLayanan;
+    private widget.TextBox KdKab;
     private widget.TextBox KdKabupaten;
+    private widget.TextBox KdKec;
     private widget.TextBox KdKecamatan;
+    private widget.TextBox KdKel;
     private widget.TextBox KdPPK;
     private widget.TextBox KdPenyakit;
     private widget.TextBox KdPoli;
     private widget.TextBox KdPpkRujukan;
+    private widget.TextBox KdProp;
     private widget.TextBox KdPropinsi;
     private widget.TextBox Kdpnj;
     private widget.TextBox Kecamatan;
@@ -5552,12 +5803,6 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
     private widget.ComboBox Penunjang;
     private widget.TextBox Propinsi;
     private widget.TextBox PropinsiPj;
-    private widget.RadioButton R1;
-    private widget.RadioButton R2;
-    private widget.RadioButton R3;
-    private widget.RadioButton R4;
-    private widget.RadioButton R5;
-    private widget.RadioButton R6;
     private widget.TextBox Saudara;
     private widget.ScrollPane Scroll;
     private widget.ComboBox Suplesi;
@@ -5858,11 +6103,15 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
                    "pasien.alamatpj,pasien.kelurahanpj,pasien.kecamatanpj,pasien.kabupatenpj,pasien.propinsipj,"+
                    "perusahaan_pasien.kode_perusahaan,perusahaan_pasien.nama_perusahaan,pasien.bahasa_pasien,"+
                    "bahasa_pasien.nama_bahasa,pasien.suku_bangsa,suku_bangsa.nama_suku_bangsa,pasien.nip,pasien.email,cacat_fisik.nama_cacat,pasien.cacat_fisik from pasien "+
-                   "inner join kelurahan inner join kecamatan inner join kabupaten inner join perusahaan_pasien inner join cacat_fisik inner join propinsi "+
-                   "inner join bahasa_pasien inner join suku_bangsa inner join penjab on pasien.kd_pj=penjab.kd_pj and pasien.cacat_fisik=cacat_fisik.id "+
-                   "and pasien.kd_kel=kelurahan.kd_kel and perusahaan_pasien.kode_perusahaan=pasien.perusahaan_pasien and pasien.kd_prop=propinsi.kd_prop "+
-                   "and bahasa_pasien.id=pasien.bahasa_pasien and suku_bangsa.id=pasien.suku_bangsa and pasien.kd_kec=kecamatan.kd_kec and pasien.kd_kab=kabupaten.kd_kab "+
-                   "where pasien.no_peserta=?");
+                   "inner join kelurahan on pasien.kd_kel=kelurahan.kd_kel "+
+                   "inner join kecamatan on pasien.kd_kec=kecamatan.kd_kec "+
+                   "inner join kabupaten on pasien.kd_kab=kabupaten.kd_kab "+
+                   "inner join perusahaan_pasien on perusahaan_pasien.kode_perusahaan=pasien.perusahaan_pasien "+
+                   "inner join cacat_fisik on pasien.cacat_fisik=cacat_fisik.id "+
+                   "inner join propinsi on pasien.kd_prop=propinsi.kd_prop "+
+                   "inner join bahasa_pasien on bahasa_pasien.id=pasien.bahasa_pasien "+
+                   "inner join suku_bangsa on suku_bangsa.id=pasien.suku_bangsa "+
+                   "inner join penjab on pasien.kd_pj=penjab.kd_pj where pasien.no_peserta=?");
                 try {
                     ps.setString(1,response.path("peserta").path("noKartu").asText());
                     rs=ps.executeQuery();
@@ -5899,26 +6148,8 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
                         nmcacat.setText(rs.getString("nama_cacat"));
                         kdperusahaan.setText(rs.getString("kode_perusahaan"));
                         nmperusahaan.setText(rs.getString("nama_perusahaan"));
-                        switch (rs.getString("namakeluarga")) {
-                            case "AYAH":
-                                R1.setSelected(true);
-                                break;
-                            case "IBU":
-                                R2.setSelected(true);
-                                break;
-                            case "ISTRI":
-                                R3.setSelected(true);
-                                break;
-                            case "SUAMI":  
-                                R4.setSelected(true);
-                                break;
-                            case "SAUDARA":
-                                R5.setSelected(true);
-                                break;
-                            case "ANAK":
-                                R6.setSelected(true);
-                                break;
-                        } 
+                        CmbKeluarga.setSelectedItem(rs.getString("keluarga"));
+                        Saudara.setText(rs.getString("namakeluarga"));
                         if(tampilkantni.equals("Yes")){
                             pstni=koneksi.prepareStatement(
                                 "select pasien_tni.no_rkm_medis,pasien_tni.golongan_tni,golongan_tni.nama_golongan,"+
@@ -6190,7 +6421,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         BtnSatuanTNI.setEnabled(false);
         BtnJabatanTNI.setEnabled(false);
         BtnPangkatTNI.setEnabled(false);
-        R5.setSelected(true);
+        CmbKeluarga.setSelectedItem("SAUDARA");
         DTPLahir.setDate(new Date());
         DTPDaftar.setDate(new Date());
         TNoReg.setText("");
@@ -6252,6 +6483,14 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         KdDPJPLayanan.setText("");
         NmDPJPLayanan.setText("");
         btnDPJPLayanan.setEnabled(true);
+        kdkel="";
+        kdkec="";
+        kdkab="";
+        kdprop="";
+        KdProp.setText("");
+        KdKab.setText("");
+        KdKec.setText("");
+        KdKel.setText("");
         TNo.requestFocus();
     }
     
@@ -6395,57 +6634,43 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
     }
     
     private void insertPasien() {
-        if(R1.isSelected()==true){
-            klg="AYAH";
-        }else if(R2.isSelected()==true){
-            klg="IBU";
-        }else if(R3.isSelected()==true){
-            klg="ISTRI";
-        }else if(R4.isSelected()==true){
-            klg="SUAMI";
-        }else if(R5.isSelected()==true){
-            klg="SAUDARA";
-        }else if(R6.isSelected()==true){
-            klg="ANAK";
-        }    
-
         if(Kelurahan.isEditable()==true){
-            Sequel.queryu4("insert into kelurahan values(?,?)",2,new String[]{"0",Kelurahan.getText().replaceAll("KELURAHAN","-")});
-            kdkel=Sequel.cariIsi("select kelurahan.kd_kel from kelurahan where kelurahan.nm_kel=?",Kelurahan.getText().replaceAll("KELURAHAN","-"));
+            Sequel.queryu4("insert ignore into kelurahan values(?,?)",2,new String[]{"0",Kelurahan.getText()});
+            kdkel=kel.tampil3(Kelurahan.getText());
         }else if(Kelurahan.isEditable()==false){
             if(kdkel.equals("")){
-                Sequel.queryu4("insert into kelurahan values(?,?)",2,new String[]{"0",Kelurahan.getText().replaceAll("KELURAHAN","-")});
-                kdkel=Sequel.cariIsi("select kelurahan.kd_kel from kelurahan where kelurahan.nm_kel=?",Kelurahan.getText().replaceAll("KELURAHAN","-"));
+                Sequel.queryu4("insert ignore into kelurahan values(?,?)",2,new String[]{"0",Kelurahan.getText()});
+                kdkel=kel.tampil3(Kelurahan.getText());
             }
         }
 
         if(Kecamatan.isEditable()==true){
-            Sequel.queryu4("insert into kecamatan values(?,?)",2,new String[]{"0",Kecamatan.getText().replaceAll("KECAMATAN","-")});
-            kdkec=Sequel.cariIsi("select kecamatan.kd_kec from kecamatan where kecamatan.nm_kec=?",Kecamatan.getText().replaceAll("KECAMATAN","-"));
+            Sequel.queryu4("insert ignore into kecamatan values(?,?)",2,new String[]{"0",Kecamatan.getText()});
+            kdkec=kec.tampil3(Kecamatan.getText());
         }else if(Kecamatan.isEditable()==false){
             if(kdkec.equals("")){
-                Sequel.queryu4("insert into kecamatan values(?,?)",2,new String[]{"0",Kecamatan.getText().replaceAll("KECAMATAN","-")});
-                kdkec=Sequel.cariIsi("select kecamatan.kd_kec from kecamatan where kecamatan.nm_kec=?",Kecamatan.getText().replaceAll("KECAMATAN","-"));
+                Sequel.queryu4("insert ignore into kecamatan values(?,?)",2,new String[]{"0",Kecamatan.getText()});
+                kdkec=kec.tampil3(Kecamatan.getText());
             }
         }
 
         if(Kabupaten.isEditable()==true){
-            Sequel.queryu4("insert into kabupaten values(?,?)",2,new String[]{"0",Kabupaten.getText().replaceAll("KABUPATEN","-")});
-            kdkab=Sequel.cariIsi("select kabupaten.kd_kab from kabupaten where kabupaten.nm_kab=?",Kabupaten.getText().replaceAll("KABUPATEN","-"));
+            Sequel.queryu4("insert ignore into kabupaten values(?,?)",2,new String[]{"0",Kabupaten.getText()});
+            kdkab=kab.tampil3(Kabupaten.getText());
         }else if(Kabupaten.isEditable()==false){
             if(kdkab.equals("")){
-                Sequel.queryu4("insert into kabupaten values(?,?)",2,new String[]{"0",Kabupaten.getText().replaceAll("KABUPATEN","-")});
-                kdkab=Sequel.cariIsi("select kabupaten.kd_kab from kabupaten where kabupaten.nm_kab=?",Kabupaten.getText().replaceAll("KABUPATEN","-"));
+                Sequel.queryu4("insert ignore into kabupaten values(?,?)",2,new String[]{"0",Kabupaten.getText()});
+                kdkab=kab.tampil3(Kabupaten.getText());
             }
         }
 
         if(Propinsi.isEditable()==true){
-           Sequel.queryu4("insert into propinsi values(?,?)",2,new String[]{"0",Propinsi.getText().replaceAll("PROPINSI","-")}); 
-           kdprop=Sequel.cariIsi("select propinsi.kd_prop from propinsi where propinsi.nm_prop=?",Propinsi.getText().replaceAll("PROPINSI","-"));
+           Sequel.queryu4("insert ignore into propinsi values(?,?)",2,new String[]{"0",Propinsi.getText()}); 
+           kdprop=propin.tampil3(Propinsi.getText());
         }else if(Propinsi.isEditable()==false){
             if(kdprop.equals("")){
-                Sequel.queryu4("insert into propinsi values(?,?)",2,new String[]{"0",Propinsi.getText().replaceAll("PROPINSI","-")}); 
-                kdprop=Sequel.cariIsi("select propinsi.kd_prop from propinsi where propinsi.nm_prop=?",Propinsi.getText().replaceAll("PROPINSI","-"));
+                Sequel.queryu4("insert ignore into propinsi values(?,?)",2,new String[]{"0",Propinsi.getText()}); 
+                kdprop=propin.tampil3(Propinsi.getText());
             }
         }
         
@@ -6456,7 +6681,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
                     Valid.SetTgl(DTPLahir.getSelectedItem()+""),NmIbu.getText(),
                     Alamat.getText().replaceAll("ALAMAT",""),CMbGd.getSelectedItem().toString(),Pekerjaan.getText(),CmbStts.getSelectedItem().toString(),cmbAgama.getSelectedItem().toString(),
                     DTPDaftar.getSelectedItem().toString().substring(6,10)+"-"+DTPDaftar.getSelectedItem().toString().substring(3,5)+"-"+DTPDaftar.getSelectedItem().toString().substring(0,2),
-                    TTlp.getText(),TUmur.getText(),CMbPnd.getSelectedItem().toString(),klg,Saudara.getText(),Kdpnj.getText(),TNoPeserta.getText(),
+                    TTlp.getText(),TUmur.getText(),CMbPnd.getSelectedItem().toString(),CmbKeluarga.getSelectedItem().toString(),Saudara.getText(),Kdpnj.getText(),TNoPeserta.getText(),
                     kdkel,kdkec,kdkab,PekerjaanPj.getText(),AlamatPj.getText(),KelurahanPj.getText(),KecamatanPj.getText(),KabupatenPj.getText(),kdperusahaan.getText(),
                     kdsuku.getText(),kdbahasa.getText(),kdcacat.getText(),EMail.getText(),NIP.getText(),
                     kdprop,PropinsiPj.getText()
@@ -6485,7 +6710,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
                         Valid.SetTgl(DTPLahir.getSelectedItem()+""),NmIbu.getText(),
                         Alamat.getText().replaceAll("ALAMAT",""),CMbGd.getSelectedItem().toString(),Pekerjaan.getText(),CmbStts.getSelectedItem().toString(),cmbAgama.getSelectedItem().toString(),
                         DTPDaftar.getSelectedItem().toString().substring(6,10)+"-"+DTPDaftar.getSelectedItem().toString().substring(3,5)+"-"+DTPDaftar.getSelectedItem().toString().substring(0,2),
-                        TTlp.getText(),TUmur.getText(),CMbPnd.getSelectedItem().toString(),klg,Saudara.getText(),Kdpnj.getText(),TNoPeserta.getText(),
+                        TTlp.getText(),TUmur.getText(),CMbPnd.getSelectedItem().toString(),CmbKeluarga.getSelectedItem().toString(),Saudara.getText(),Kdpnj.getText(),TNoPeserta.getText(),
                         kdkel,kdkec,kdkab,PekerjaanPj.getText(),AlamatPj.getText(),KelurahanPj.getText(),KecamatanPj.getText(),KabupatenPj.getText(),kdperusahaan.getText(),
                         kdsuku.getText(),kdbahasa.getText(),kdcacat.getText(),EMail.getText(),NIP.getText(),
                         kdprop,PropinsiPj.getText()
@@ -6513,16 +6738,16 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             }
         }else if(statuspasien.equals("Lama")){
             if(kdkel.equals("")){
-                kdkel=Sequel.cariIsi("select kelurahan.kd_kel from kelurahan where kelurahan.nm_kel=?",Kelurahan.getText().replaceAll("KELURAHAN","-"));
+                kdkel=kel.tampil3(Kelurahan.getText());
             }
             if(kdkec.equals("")){
-                kdkec=Sequel.cariIsi("select kecamatan.kd_kec from kecamatan where kecamatan.nm_kec=?",Kecamatan.getText().replaceAll("KECAMATAN","-"));
+                kdkec=kec.tampil3(Kecamatan.getText());
             }            
             if(kdkab.equals("")){
-                kdkab=Sequel.cariIsi("select kabupaten.kd_kab from kabupaten where kabupaten.nm_kab=?",Kabupaten.getText().replaceAll("KABUPATEN","-"));
+                kdkab=kab.tampil3(Kabupaten.getText());
             }            
             if(kdprop.equals("")){
-                kdprop=Sequel.cariIsi("select propinsi.kd_prop from propinsi where propinsi.nm_prop=?",Propinsi.getText().replaceAll("PROPINSI","-"));
+                kdprop=propin.tampil3(Propinsi.getText());
             }
             
             Sequel.mengedit("pasien","no_rkm_medis=?","no_rkm_medis=?,nm_pasien=?,no_ktp=?,jk=?,tmp_lahir=?,"+
@@ -6534,7 +6759,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
                     Valid.SetTgl(DTPLahir.getSelectedItem()+""),
                     Alamat.getText(),CMbGd.getSelectedItem().toString(),Pekerjaan.getText(),CmbStts.getSelectedItem().toString(),cmbAgama.getSelectedItem().toString(),
                     DTPDaftar.getSelectedItem().toString().substring(6,10)+"-"+DTPDaftar.getSelectedItem().toString().substring(3,5)+"-"+DTPDaftar.getSelectedItem().toString().substring(0,2),
-                    TTlp.getText(),TUmur.getText(),CMbPnd.getSelectedItem().toString(),klg,Saudara.getText(),Kdpnj.getText(),TNoPeserta.getText(),
+                    TTlp.getText(),TUmur.getText(),CMbPnd.getSelectedItem().toString(),CmbKeluarga.getSelectedItem().toString(),Saudara.getText(),Kdpnj.getText(),TNoPeserta.getText(),
                     kdkel,kdkec,kdkab,NmIbu.getText(),PekerjaanPj.getText(),AlamatPj.getText(),KelurahanPj.getText(),KecamatanPj.getText(),
                     KabupatenPj.getText(),kdperusahaan.getText(),kdsuku.getText(),kdbahasa.getText(),kdcacat.getText(),EMail.getText(),NIP.getText(),
                     kdprop,PropinsiPj.getText(),TNo.getText()
@@ -6566,10 +6791,10 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         sttsumur="Th";
         try {
             pscariumur=koneksi.prepareStatement(
-                "select TIMESTAMPDIFF(YEAR, tgl_lahir, CURDATE()) as tahun, "+
-                "(TIMESTAMPDIFF(MONTH, tgl_lahir, CURDATE()) - ((TIMESTAMPDIFF(MONTH, tgl_lahir, CURDATE()) div 12) * 12)) as bulan, "+
-                "TIMESTAMPDIFF(DAY, DATE_ADD(DATE_ADD(tgl_lahir,INTERVAL TIMESTAMPDIFF(YEAR, tgl_lahir, CURDATE()) YEAR), INTERVAL TIMESTAMPDIFF(MONTH, tgl_lahir, CURDATE()) - ((TIMESTAMPDIFF(MONTH, tgl_lahir, CURDATE()) div 12) * 12) MONTH), CURDATE()) as hari "+
-                "from pasien where no_rkm_medis=?");
+                "select TIMESTAMPDIFF(YEAR, pasien.tgl_lahir, CURDATE()) as tahun, "+
+                "(TIMESTAMPDIFF(MONTH, pasien.tgl_lahir, CURDATE()) - ((TIMESTAMPDIFF(MONTH, pasien.tgl_lahir, CURDATE()) div 12) * 12)) as bulan, "+
+                "TIMESTAMPDIFF(DAY, DATE_ADD(DATE_ADD(pasien.tgl_lahir,INTERVAL TIMESTAMPDIFF(YEAR, pasien.tgl_lahir, CURDATE()) YEAR), INTERVAL TIMESTAMPDIFF(MONTH, pasien.tgl_lahir, CURDATE()) - ((TIMESTAMPDIFF(MONTH, pasien.tgl_lahir, CURDATE()) div 12) * 12) MONTH), CURDATE()) as hari "+
+                "from pasien where pasien.no_rkm_medis=?");
             try {
                 pscariumur.setString(1,TNo.getText());                            
                 rs=pscariumur.executeQuery();
@@ -6611,7 +6836,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             if(Sequel.menyimpantf2("reg_periksa","?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?","No.Rawat",19,
                     new String[]{TNoReg.getText(),TNoRw.getText(),Valid.SetTgl(TanggalSEP.getSelectedItem()+""),TanggalSEP.getSelectedItem().toString().substring(11,19),
                     kddokter.getText(),TNo.getText(),kdpoli.getText(),Saudara.getText(),AlamatPj.getText()+", "+KelurahanPj.getText()+", "+KecamatanPj.getText()+", "+KabupatenPj.getText(),
-                    klg,TBiaya.getText(),"Belum",statuspasien,"Ralan",Kdpnj.getText(),umurdaftar,sttsumur,"Belum Bayar",status
+                    CmbKeluarga.getSelectedItem().toString(),TBiaya.getText(),"Belum",statuspasien,"Ralan",Kdpnj.getText(),umurdaftar,sttsumur,"Belum Bayar",status
                 })==true){
                     UpdateUmur();
                     Sequel.menyimpan2("rujuk_masuk","'"+TNoRw.getText()+"','"+NmPpkRujukan.getText()+"','"+Kabupaten.getText()+"','"+NoRujukan.getText()+"','0','"+NmPPK.getText()+"','"+KdPenyakit.getText()+"','-','-','"+NoBalasan.getText()+"'","No.Rujuk");             
@@ -6620,16 +6845,30 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
                         Sequel.menyimpan3("penyakit","?,?,?,?,?,?","Penyakit",6,new String[]{KdPenyakit.getText(),NmPenyakit.getText(),NmPenyakit.getText(),"-","-","Tidak Menular"});
                         if(Sequel.cariInteger(
                                 "select count(diagnosa_pasien.kd_penyakit) from diagnosa_pasien "+
-                                "inner join reg_periksa inner join pasien on "+
-                                "diagnosa_pasien.no_rawat=reg_periksa.no_rawat and "+
-                                "reg_periksa.no_rkm_medis=pasien.no_rkm_medis where "+
+                                "inner join reg_periksa on diagnosa_pasien.no_rawat=reg_periksa.no_rawat "+
+                                "inner join pasien on reg_periksa.no_rkm_medis=pasien.no_rkm_medis where "+
                                 "pasien.no_rkm_medis='"+TNo.getText()+"' and diagnosa_pasien.kd_penyakit='"+KdPenyakit.getText()+"'")>0){
                             Sequel.menyimpan2("diagnosa_pasien","?,?,?,?,?","Penyakit",5,new String[]{TNoRw.getText(),KdPenyakit.getText(),"Ralan","1","Lama"});
                         }else{
                             Sequel.menyimpan2("diagnosa_pasien","?,?,?,?,?","Penyakit",5,new String[]{TNoRw.getText(),KdPenyakit.getText(),"Ralan","1","Baru"});
                         }
                     }
-                    insertSEP();
+                    
+                    if(ADDANTRIANAPIMOBILEJKN.equals("yes")){
+                        if(SimpanAntrianOnSite()==true){
+                            insertSEP();
+                        }else{
+                            Sequel.meghapus3("diagnosa_pasien","no_rawat",TNoRw.getText());
+                            Sequel.meghapus3("rujuk_masuk","no_rawat",TNoRw.getText());
+                            Sequel.meghapus3("reg_periksa","no_rawat",TNoRw.getText());
+                            if(statuspasien.equals("Baru")){
+                                Sequel.meghapus3("pasien","no_rkm_medis",TNo.getText());
+                            }
+                            JOptionPane.showMessageDialog(null,"Maaf, antrian mobile JKN gagal dibuat. Silahkan cek jadwal dokter / Nomor Referensi..!!");
+                        }
+                    }else{
+                        insertSEP();
+                    }
             }
         }else if(JenisPelayanan.getSelectedIndex()==0){
             isNumber();
@@ -6637,7 +6876,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
             if(Sequel.menyimpantf2("reg_periksa","?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?","No.Rawat",19,
                     new String[]{TNoReg.getText(),TNoRw.getText(),Valid.SetTgl(TanggalSEP.getSelectedItem()+""),TanggalSEP.getSelectedItem().toString().substring(11,19),
                     kddokter.getText(),TNo.getText(),"IGDK",Saudara.getText(),AlamatPj.getText()+", "+KelurahanPj.getText()+", "+KecamatanPj.getText()+", "+KabupatenPj.getText(),
-                    klg,Sequel.cariIsi("select registrasilama from poliklinik where kd_poli='IGDK'"),"Belum",statuspasien,"Ralan",Kdpnj.getText(),umurdaftar,sttsumur,"Belum Bayar",status
+                    CmbKeluarga.getSelectedItem().toString(),Sequel.cariIsi("select poliklinik.registrasilama from poliklinik where poliklinik.kd_poli='IGDK'"),"Belum",statuspasien,"Ralan",Kdpnj.getText(),umurdaftar,sttsumur,"Belum Bayar",status
                 })==true){
                     UpdateUmur();
                     Sequel.menyimpan2("rujuk_masuk","'"+TNoRw.getText()+"','"+NmPpkRujukan.getText()+"','"+Kabupaten.getText()+"','"+NoRujukan.getText()+"','0','"+NmPPK.getText()+"','"+KdPenyakit.getText()+"','-','-','"+NoBalasan.getText()+"'","No.Rujuk");                                     
@@ -6646,9 +6885,8 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
                         Sequel.menyimpan3("penyakit","?,?,?,?,?,?","Penyakit",6,new String[]{KdPenyakit.getText(),NmPenyakit.getText(),NmPenyakit.getText(),"-","-","Tidak Menular"});
                         if(Sequel.cariInteger(
                                 "select count(diagnosa_pasien.kd_penyakit) from diagnosa_pasien "+
-                                "inner join reg_periksa inner join pasien on "+
-                                "diagnosa_pasien.no_rawat=reg_periksa.no_rawat and "+
-                                "reg_periksa.no_rkm_medis=pasien.no_rkm_medis where "+
+                                "inner join reg_periksa on diagnosa_pasien.no_rawat=reg_periksa.no_rawat "+
+                                "inner join pasien on reg_periksa.no_rkm_medis=pasien.no_rkm_medis where "+
                                 "pasien.no_rkm_medis='"+TNo.getText()+"' and diagnosa_pasien.kd_penyakit='"+KdPenyakit.getText()+"'")>0){
                             Sequel.menyimpan2("diagnosa_pasien","?,?,?,?,?","Penyakit",5,new String[]{TNoRw.getText(),KdPenyakit.getText(),"Ralan","1","Lama"});
                         }else{
@@ -6678,7 +6916,7 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
     private void insertSEP(){
         try {
             tglkkl="0000-00-00";
-            if(LakaLantas.getSelectedIndex()==1){
+            if(LakaLantas.getSelectedIndex()>0){
                 tglkkl=Valid.SetTgl(TanggalKKL.getSelectedItem()+"");
             }
             
@@ -6903,5 +7141,196 @@ public final class BPJSCekNoRujukanRS extends javax.swing.JDialog {
         ppPengajuan2.setEnabled(akses.getbpjs_sep());
         ppPengajuan3.setEnabled(akses.getbpjs_sep());
         ppStatusFinger.setEnabled(akses.getbpjs_sep());
+    }
+    
+    public boolean SimpanAntrianOnSite(){
+        statusantrean=true;
+        if((!NoRujukan.getText().equals(""))||(!NoSKDP.getText().equals(""))){
+            if(TujuanKunjungan.getSelectedItem().toString().trim().equals("0. Normal")&&FlagProsedur.getSelectedItem().toString().trim().equals("")&&Penunjang.getSelectedItem().toString().trim().equals("")&&AsesmenPoli.getSelectedItem().toString().trim().equals("")){
+                if(AsalRujukan.getSelectedIndex()==0){
+                    jeniskunjungan="1";
+                }else{
+                    if(!NoSKDP.getText().equals("")){
+                        jeniskunjungan="3";
+                    }else{
+                        jeniskunjungan="4";
+                    }
+                }
+            }else if(TujuanKunjungan.getSelectedItem().toString().trim().equals("2. Konsul Dokter")&&FlagProsedur.getSelectedItem().toString().trim().equals("")&&Penunjang.getSelectedItem().toString().trim().equals("")&&AsesmenPoli.getSelectedItem().toString().trim().equals("5. Tujuan Kontrol")){
+                jeniskunjungan="3";
+            }else if(TujuanKunjungan.getSelectedItem().toString().trim().equals("0. Normal")&&FlagProsedur.getSelectedItem().toString().trim().equals("")&&Penunjang.getSelectedItem().toString().trim().equals("")&&AsesmenPoli.getSelectedItem().toString().trim().equals("4. Atas Instruksi RS")){
+                jeniskunjungan="2";
+            }else{
+                if(TujuanKunjungan.getSelectedItem().toString().trim().equals("2. Konsul Dokter")&&AsesmenPoli.getSelectedItem().toString().trim().equals("5. Tujuan Kontrol")){
+                    jeniskunjungan="3";
+                }else{
+                    jeniskunjungan="2";
+                }
+            }
+            
+            try {
+                day=cal.get(Calendar.DAY_OF_WEEK);
+                switch (day) {
+                    case 1:
+                        hari="AKHAD";
+                        break;
+                    case 2:
+                        hari="SENIN";
+                        break;
+                    case 3:
+                        hari="SELASA";
+                        break;
+                    case 4:
+                        hari="RABU";
+                        break;
+                    case 5:
+                        hari="KAMIS";
+                        break;
+                    case 6:
+                        hari="JUMAT";
+                        break;
+                    case 7:
+                        hari="SABTU";
+                        break;
+                    default:
+                        break;
+                }
+
+                ps=koneksi.prepareStatement("select jadwal.jam_mulai,jadwal.jam_selesai,jadwal.kuota from jadwal where jadwal.hari_kerja=? and jadwal.kd_poli=? and jadwal.kd_dokter=?");
+                try {
+                    ps.setString(1,hari);
+                    ps.setString(2,kdpoli.getText());
+                    ps.setString(3,Sequel.cariIsi("select maping_dokter_dpjpvclaim.kd_dokter from maping_dokter_dpjpvclaim where maping_dokter_dpjpvclaim.kd_dokter_bpjs=?",KdDPJP.getText()));
+                    rs=ps.executeQuery();
+                    if(rs.next()){
+                        jammulai=rs.getString("jam_mulai");
+                        jamselesai=rs.getString("jam_selesai");
+                        kuota=rs.getInt("kuota");
+                        datajam=Sequel.cariIsi("select DATE_ADD(concat('"+Valid.SetTgl(TanggalSEP.getSelectedItem()+"")+"',' ','"+jammulai+"'),INTERVAL "+(Integer.parseInt(TNoReg.getText())*10)+" MINUTE) ");
+                        parsedDate = dateFormat.parse(datajam);
+                    }else{
+                        statusantrean=false;
+                        System.out.println("Jadwal tidak ditemukan...!");
+                    }
+                } catch (Exception e) {
+                    statusantrean=false;
+                    System.out.println("Notif : "+e);
+                } finally{
+                    if(rs!=null){
+                        rs.close();
+                    }
+                    if(ps!=null){
+                        ps.close();
+                    }
+                }  
+                
+                respon="200";
+                if(!NoRujukan.getText().equals("")){
+                    try {
+                        headers = new HttpHeaders();
+                        headers.setContentType(MediaType.APPLICATION_JSON);
+                        headers.add("x-cons-id",koneksiDB.CONSIDAPIMOBILEJKN());
+                        utc=String.valueOf(api.GetUTCdatetimeAsString());
+                        headers.add("x-timestamp",utc);
+                        headers.add("x-signature",api.getHmac(utc));
+                        headers.add("user_key",koneksiDB.USERKEYAPIMOBILEJKN());
+
+                        requestJson ="{" +
+                                        "\"kodebooking\": \""+TNoRw.getText()+"\"," +
+                                        "\"jenispasien\": \"JKN\"," +
+                                        "\"nomorkartu\": \""+TNoPeserta.getText()+"\"," +
+                                        "\"nik\": \""+TKtp.getText()+"\"," +
+                                        "\"nohp\": \""+TTlp.getText()+"\"," +
+                                        "\"kodepoli\": \""+KdPoli.getText()+"\"," +
+                                        "\"namapoli\": \""+NmPoli.getText()+"\"," +
+                                        "\"pasienbaru\": "+statuspasien.replaceAll("Baru","1").replaceAll("Lama","0").replaceAll("-","0")+"," +
+                                        "\"norm\": \""+TNo.getText()+"\"," +
+                                        "\"tanggalperiksa\": \""+Valid.SetTgl(TanggalSEP.getSelectedItem()+"")+"\"," +
+                                        "\"kodedokter\": "+KdDPJP.getText()+"," +
+                                        "\"namadokter\": \""+NmDPJP.getText()+"\"," +
+                                        "\"jampraktek\": \""+jammulai.substring(0,5)+"-"+jamselesai.substring(0,5)+"\"," +
+                                        "\"jeniskunjungan\": "+jeniskunjungan+"," +
+                                        "\"nomorreferensi\": \""+NoRujukan.getText()+"\"," +
+                                        "\"nomorantrean\": \""+TNoReg.getText()+"\"," +
+                                        "\"angkaantrean\": "+Integer.parseInt(TNoReg.getText())+"," +
+                                        "\"estimasidilayani\": "+parsedDate.getTime()+"," +
+                                        "\"sisakuotajkn\": "+(kuota-Integer.parseInt(TNoReg.getText()))+"," +
+                                        "\"kuotajkn\": "+kuota+"," +
+                                        "\"sisakuotanonjkn\": "+(kuota-Integer.parseInt(TNoReg.getText()))+"," +
+                                        "\"kuotanonjkn\": "+kuota+"," +
+                                        "\"keterangan\": \"Peserta harap 30 menit lebih awal guna pencatatan administrasi.\"" +
+                                    "}";
+                        System.out.println("JSON : "+requestJson+"\n");
+                        requestEntity = new HttpEntity(requestJson,headers);
+                        URL = koneksiDB.URLAPIMOBILEJKN()+"/antrean/add";	
+                        System.out.println("URL : "+URL);
+                        root = mapper.readTree(api.getRest().exchange(URL, HttpMethod.POST, requestEntity, String.class).getBody());
+                        nameNode = root.path("metadata"); 
+                        respon=nameNode.path("code").asText();
+                        System.out.println("respon WS BPJS Kirim Pakai NoRujukan : "+nameNode.path("code").asText()+" "+nameNode.path("message").asText()+"\n");
+                    } catch (Exception e) {
+                        statusantrean=false;
+                        System.out.println("Notif No.Rujuk : "+e);
+                    }
+                }
+                
+                if(respon.equals("201")){
+                    if(!NoSKDP.getText().equals("")){
+                        try {
+                            headers = new HttpHeaders();
+                            headers.setContentType(MediaType.APPLICATION_JSON);
+                            headers.add("x-cons-id",koneksiDB.CONSIDAPIMOBILEJKN());
+                            utc=String.valueOf(api.GetUTCdatetimeAsString());
+                            headers.add("x-timestamp",utc);
+                            headers.add("x-signature",api.getHmac(utc));
+                            headers.add("user_key",koneksiDB.USERKEYAPIMOBILEJKN());
+
+                            requestJson ="{" +
+                                            "\"kodebooking\": \""+TNoRw.getText()+"\"," +
+                                            "\"jenispasien\": \"JKN\"," +
+                                            "\"nomorkartu\": \""+TNoPeserta.getText()+"\"," +
+                                            "\"nik\": \""+TKtp.getText()+"\"," +
+                                            "\"nohp\": \""+TTlp.getText()+"\"," +
+                                            "\"kodepoli\": \""+KdPoli.getText()+"\"," +
+                                            "\"namapoli\": \""+NmPoli.getText()+"\"," +
+                                            "\"pasienbaru\": "+statuspasien.replaceAll("Baru","1").replaceAll("Lama","0").replaceAll("-","0")+"," +
+                                            "\"norm\": \""+TNo.getText()+"\"," +
+                                            "\"tanggalperiksa\": \""+Valid.SetTgl(TanggalSEP.getSelectedItem()+"")+"\"," +
+                                            "\"kodedokter\": "+KdDPJP.getText()+"," +
+                                            "\"namadokter\": \""+NmDPJP.getText()+"\"," +
+                                            "\"jampraktek\": \""+jammulai.substring(0,5)+"-"+jamselesai.substring(0,5)+"\"," +
+                                            "\"jeniskunjungan\": "+jeniskunjungan+"," +
+                                            "\"nomorreferensi\": \""+NoSKDP.getText()+"\"," +
+                                            "\"nomorantrean\": \""+TNoReg.getText()+"\"," +
+                                            "\"angkaantrean\": "+Integer.parseInt(TNoReg.getText())+"," +
+                                            "\"estimasidilayani\": "+parsedDate.getTime()+"," +
+                                            "\"sisakuotajkn\": "+(kuota-Integer.parseInt(TNoReg.getText()))+"," +
+                                            "\"kuotajkn\": "+kuota+"," +
+                                            "\"sisakuotanonjkn\": "+(kuota-Integer.parseInt(TNoReg.getText()))+"," +
+                                            "\"kuotanonjkn\": "+kuota+"," +
+                                            "\"keterangan\": \"Peserta harap 30 menit lebih awal guna pencatatan administrasi.\"" +
+                                        "}";
+                            System.out.println("JSON : "+requestJson+"\n");
+                            requestEntity = new HttpEntity(requestJson,headers);
+                            URL = koneksiDB.URLAPIMOBILEJKN()+"/antrean/add";	
+                            System.out.println("URL : "+URL);
+                            root = mapper.readTree(api.getRest().exchange(URL, HttpMethod.POST, requestEntity, String.class).getBody());
+                            nameNode = root.path("metadata");  
+                            System.out.println("respon WS BPJS Kirim Pakai SKDP : "+nameNode.path("code").asText()+" "+nameNode.path("message").asText()+"\n");
+                            if(nameNode.path("code").asText().equals("201")){
+                                statusantrean=false;
+                            }
+                        } catch (Exception e) {
+                            statusantrean=false;
+                            System.out.println("Notif SKDP : "+e);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                statusantrean=false;
+                System.out.println("Notif : "+e);
+            }
+        }
+        return statusantrean;
     }
 }
